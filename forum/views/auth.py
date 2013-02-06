@@ -106,7 +106,16 @@ def process_provider_signin(request, provider):
         provider_class = AUTH_PROVIDERS[provider].consumer
 
         try:
-            assoc_key = provider_class.process_authentication_request(request)
+            nonce = request.REQUEST.get('nonce', '')
+            if nonce != '':
+                # Got sent nonce from redirect, check it
+                assoc_key = User.objects.get(redirect_nonce=nonce)
+            else:
+                assoc_key = provider_class.process_authentication_request(request)
+            # Clear nonce
+            if isinstance(assoc_key, (type, User)) and assoc_key.redirect_nonce != '':
+                assoc_key.redirect_nonce = ''
+                assoc_key.save()
         except InvalidAuthentication, e:
             request.session['auth_error'] = e.message
             return HttpResponseRedirect(reverse('auth_signin'))
@@ -438,4 +447,12 @@ def forward_suspended_user(request, user, show_private_msg=True):
 @decorate.withfn(login_required)
 def signout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    
+    import os
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    subdomain = os.path.basename(root_dir)
+    if any(map(lambda x: subdomain.endswith(x), ['-a', '-b'])):
+        # Go log out of main site too and leave them there
+        return HttpResponseRedirect('http://cs1692x.moocforums.org/account/signout/')
+    else:
+        return HttpResponseRedirect(reverse('index'))

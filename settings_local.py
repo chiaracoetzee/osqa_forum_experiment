@@ -40,6 +40,26 @@ DATABASES = {
     }
 }
 
+if not subdomain.endswith('-a') and not subdomain.endswith('-b') and not subdomain == 'test':
+  DATABASES.update({
+    'a': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': subdomain + '-a',
+        'USER': subdomain + '-a',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    },
+    'b': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': subdomain + '-b',
+        'USER': subdomain + '-b',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    }
+  })
+
 CACHE_BACKEND = 'file://%s' % os.path.join(os.path.dirname(__file__),'cache').replace('\\','/')
 #CACHE_BACKEND = 'dummy://'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

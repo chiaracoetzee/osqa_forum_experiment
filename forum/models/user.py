@@ -140,6 +140,8 @@ class User(BaseModel, DjangoUser):
     location = models.CharField(max_length=100, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     about = models.TextField(blank=True)
+    
+    redirect_nonce = models.CharField(max_length=64, blank=True)
 
     subscriptions = models.ManyToManyField('Node', related_name='subscribers', through='QuestionSubscription')
 

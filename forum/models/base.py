@@ -278,9 +278,9 @@ class BaseModel(models.Model):
             self._state.db = 'default'
 
         if self.id and not full_save:
-            self.__class__.objects.filter(id=self.id).update(**self._get_update_kwargs())
+            self.__class__.objects.using('default' if not kwargs.has_key('using') else kwargs['using']).filter(id=self.id).update(**self._get_update_kwargs())
         else:
-            super(BaseModel, self).save()
+            super(BaseModel, self).save(*args, **kwargs)
 
         if put_back:
             try:
