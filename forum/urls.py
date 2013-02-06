@@ -119,6 +119,9 @@ core_urls = (
     url(r'^%s$' % _('upload/'), app.writers.upload, name='upload'),
     url(r'^%s$' % _('search/'), app.readers.search, name='search'),
     url(r'^%s$' % _('contact/'), app.meta.feedback, name='feedback'),
+
+    url(r'^%s$' % _('consent/'), app.readers.consent, name='consent'),
+    url(r'^%s%s$' % (_('consent/'), _('accept/')), app.readers.consent_accept, name='consent_accept'),
     
     (r'^i18n/', include('django.conf.urls.i18n')),
     
@@ -190,4 +193,3 @@ def urlname(name):
     return name
 
 urlpatterns += patterns('', *core_defined)
-

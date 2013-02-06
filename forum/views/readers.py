@@ -429,5 +429,16 @@ def revisions(request, id):
     'revisions': rev_ctx,
     }, context_instance=RequestContext(request))
 
+def consent(request):
+    if not request.user.is_authenticated():
+        # Must be logged in to view consent form
+        return HttpResponseRedirect(reverse('auth_signin'))
+    return render_to_response('consent.html', {
+    'already_consented': request.user.is_authenticated() and request.user.completed_consent,
+    'username': request.user.username,
+    }, context_instance=RequestContext(request))
 
-
+def consent_accept(request):
+    request.user.completed_consent = True
+    request.user.save()
+    return HttpResponseRedirect(reverse('index'))

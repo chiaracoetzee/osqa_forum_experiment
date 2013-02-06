@@ -1,0 +1,32 @@
+WSGISocketPrefix /var/run/wsgi
+WSGIDaemonProcess test
+WSGIProcessGroup test
+
+<VirtualHost *:80>
+	ServerName test.moocforums.org
+	ServerAdmin dcoetzee@eecs.berkeley.edu
+
+	DocumentRoot /srv/osqa.1/test/forum
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+
+        # Static content
+        Alias /m/ /srv/osqa.1/test/forum/skins/
+        Alias /upfiles/ /srv/osqa.1/test/forum/upfiles/
+        <Directory /srv/osqa.1/test/forum/skins>
+                Order allow,deny
+                Allow from all
+        </Directory>
+
+        WSGIScriptAlias / /srv/osqa.1/test/osqa.wsgi
+
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>

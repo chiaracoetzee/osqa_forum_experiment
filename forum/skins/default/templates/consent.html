@@ -1,0 +1,37 @@
+{% extends "base_content.html" %}
+{% load node_tags %}
+{% load extra_tags %}
+{% load i18n %}
+{% load extra_filters %}
+{% load humanize %}
+{% block title %}{% spaceless %}{% trans "Consent form" %}{% endspaceless %}{% endblock %}
+{% block forejs %}
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+        
+{% block content %}
+<div id="main-bar" class="headNormal">
+    {% trans "Consent form" %}
+</div>
+<div id="main-body" class="">
+
+{% if already_consented %}
+<p><b>You have already consented to participate in the experiment.</b> You can review the consent
+form below, or cease further participation by 
+<a href="https://www.edx.org/courses/BerkeleyX/CS169.2x/2013_Spring/discussion/forum">switching to the standard edX forum</a>.</p>
+{% endif %}
+
+<p>Dear {{ username }}:</p>
+
+<p>Consent form text goes here.</p>
+
+<p><a href="accept/">Accept</a></p>
+
+<!-- TODO: Put this URL in a setting -->
+<p><a href="https://www.edx.org/courses/BerkeleyX/CS169.2x/2013_Spring/discussion/forum">Go to standard edX forum</a></p>
+</div>
+{% endblock %}
+
+{% block endjs %}
+{% endblock %}

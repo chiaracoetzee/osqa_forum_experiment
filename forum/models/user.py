@@ -127,6 +127,7 @@ class UserManager(CachedManager):
 class User(BaseModel, DjangoUser):
     is_approved = models.BooleanField(default=False)
     email_isvalid = models.BooleanField(default=False)
+    completed_consent = models.BooleanField(default=False)
 
     reputation = models.IntegerField(default=0)
     gold = models.PositiveIntegerField(default=0)
