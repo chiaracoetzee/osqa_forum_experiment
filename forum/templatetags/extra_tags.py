@@ -53,7 +53,10 @@ def _get_score_badge(user):
     if user.is_suspended():
         return _("(suspended)")
 
-    repstr = decorated_int(user.reputation, "")
+    if settings.SHOW_REPUTATION_SCORES:
+        repstr = decorated_int(user.reputation, "")
+    else:
+        repstr = ""
 
     BADGE_TEMPLATE = '<span class="score" title="%(reputation)s %(reputationword)s">%(repstr)s</span>'
     if user.gold > 0 :

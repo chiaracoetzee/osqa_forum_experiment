@@ -22,8 +22,10 @@
                 <tr>
                     <td align="center">
                         {% if not view_user.is_suspended %}
-                            <div class="scoreNumber" id="user-reputation">{{view_user.reputation|intcomma}}</div>
-                            <p><b style="color:#777;">{% trans "reputation" %}</b></p>
+                            {% if show_reputation_scores %}
+                                <div class="scoreNumber" id="user-reputation">{{view_user.reputation|intcomma}}</div>
+                                <p><b style="color:#777;">{% trans "reputation" %}</b></p>
+                            {% endif %}
                         {% else %}
                             <div class="scoreNumber">{% trans "Suspended" %}</div>
                             <p>{{ view_user.suspension.extra.publicmsg }}</p>

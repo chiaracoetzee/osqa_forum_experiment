@@ -5,7 +5,9 @@
 
     {% else %}
         <a href="{{ user.get_absolute_url }}">{{ user.decorated_name }}</a>
-        <span class="score" title="{{ user.reputation }} {% trans "reputation" %}">{{ user.reputation|decorated_int:"" }}</span>
+        {% if show_reputation_scores %}
+            <span class="score" title="{{ user.reputation }} {% trans "reputation" %}">{{ user.reputation|decorated_int:"" }}</span>
+        {% endif %}
         {% ifequal format "badges" %}
             {% if user.gold %}
             <span title="{{ user.gold }} {% trans "badges" %}">

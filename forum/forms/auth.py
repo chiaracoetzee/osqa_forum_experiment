@@ -10,7 +10,6 @@ class SimpleRegistrationForm(forms.Form):
     next = NextUrlField()
     username = UserNameField()
     email = UserEmailField()
-    real_name = UserRealNameField()
 
 class TemporaryLoginRequestForm(forms.Form):
     def __init__(self, data=None):

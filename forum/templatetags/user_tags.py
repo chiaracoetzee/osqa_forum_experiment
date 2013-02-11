@@ -1,6 +1,7 @@
 from django import template
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from forum import settings
 import logging
 
 register = template.Library()
@@ -15,7 +16,8 @@ class UserSignatureNode(template.Node):
     def render(self, context):
         return self.template.render(template.Context({
         'user': self.user.resolve(context),
-        'format': self.format.resolve(context)
+        'format': self.format.resolve(context),
+        'show_reputation_scores': settings.SHOW_REPUTATION_SCORES
         }))
 
 @register.tag

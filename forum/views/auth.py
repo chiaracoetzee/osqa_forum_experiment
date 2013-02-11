@@ -3,6 +3,7 @@
 import datetime
 import logging
 import urllib
+import os
 from urlparse import urlparse
 
 from django.shortcuts import render_to_response, get_object_or_404
@@ -31,7 +32,16 @@ from forum import settings
 
 from vars import ON_SIGNIN_SESSION_ATTR, PENDING_SUBMISSION_SESSION_ATTR
 
+def get_subdomain():
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    return os.path.basename(root_dir)
+
 def signin_page(request):
+    subdomain = get_subdomain()
+    if any(map(lambda x: subdomain.endswith(x), ['-a', '-b'])):
+        # Go log in to main site instead, which will redirect back here
+        return HttpResponseRedirect('http://' + subdomain.replace('-a','').replace('-b', '') + '.moocforums.org' + reverse('auth_signin'))
+
     referer = request.META.get('HTTP_REFERER', '/')
 
     # If the referer is equal to the sign up page, e. g. if the previous login attempt was not successful we do not
@@ -79,6 +89,11 @@ def signin_page(request):
             RequestContext(request))
 
 def prepare_provider_signin(request, provider):
+    subdomain = get_subdomain()
+    if any(map(lambda x: subdomain.endswith(x), ['-a', '-b'])):
+        # Go log in to main site instead, which will redirect back here
+        return HttpResponseRedirect('http://' + subdomain.replace('-a','').replace('-b', '') + '.moocforums.org' + reverse('auth_provider_signin', kwargs={'provider': provider}))
+
     force_email_request = request.REQUEST.get('validate_email', 'yes') == 'yes'
     request.session['force_email_request'] = force_email_request
 
@@ -166,7 +181,7 @@ def external_register(request):
         form1 = SimpleRegistrationForm(request.POST)
 
         if form1.is_valid():
-            user_ = User(username=form1.cleaned_data['username'], email=form1.cleaned_data['email'], real_name=form1.cleaned_data['real_name'])
+            user_ = User(username=form1.cleaned_data['username'], email=form1.cleaned_data['email'], real_name=form1.cleaned_data['username'])
             user_.email_isvalid = request.session.get('auth_validated_email', '') == form1.cleaned_data['email']
             user_.set_unusable_password()
 
@@ -447,12 +462,10 @@ def forward_suspended_user(request, user, show_private_msg=True):
 @decorate.withfn(login_required)
 def signout(request):
     logout(request)
-    
-    import os
-    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-    subdomain = os.path.basename(root_dir)
+
+    subdomain = get_subdomain()
     if any(map(lambda x: subdomain.endswith(x), ['-a', '-b'])):
         # Go log out of main site too and leave them there
-        return HttpResponseRedirect('http://cs1692x.moocforums.org/account/signout/')
+        return HttpResponseRedirect('http://' + subdomain.replace('-a','').replace('-b', '') + '.moocforums.org/account/signout/')
     else:
         return HttpResponseRedirect(reverse('index'))

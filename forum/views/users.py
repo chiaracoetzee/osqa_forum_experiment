@@ -371,6 +371,7 @@ def user_profile(request, user, **kwargs):
     "user_tags" : user_tags[:50],
     "awards": awards,
     "total_awards" : len(awards),
+    "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES,
     })
     
 @user_view('users/recent.html', 'recent', _('recent activity'), _('recent user activity'))
@@ -379,7 +380,7 @@ def user_recent(request, user, **kwargs):
             action_type__in=("voteup", "votedown", "voteupcomment", "flag", "newpage", "editpage")).order_by(
             '-action_date')[:USERS_PAGE_SIZE]
 
-    return {"view_user" : user, "activities" : activities}
+    return {"view_user" : user, "activities" : activities, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
 
 @user_view('users/reputation.html', 'reputation', _('reputation history'), _('graph of user karma'))
@@ -395,20 +396,20 @@ def user_reputation(request, user, **kwargs):
 
     rep = user.reputes.filter(action__canceled=False).order_by('-date')[0:20]
 
-    return {"view_user": user, "reputation": rep, "graph_data": graph_data}
+    return {"view_user": user, "reputation": rep, "graph_data": graph_data, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
 @user_view('users/votes.html', 'votes', _('votes'), _('user vote record'), True)
 def user_votes(request, user, **kwargs):
     votes = user.votes.exclude(node__state_string__contains="(deleted").filter(
             node__node_type__in=("question", "answer")).order_by('-voted_at')[:USERS_PAGE_SIZE]
 
-    return {"view_user" : user, "votes" : votes}
+    return {"view_user" : user, "votes" : votes, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
 @user_view('users/questions.html', 'favorites', _('favorites'), _('questions that user selected as his/her favorite'))
 def user_favorites(request, user, **kwargs):
     favorites = FavoriteAction.objects.filter(canceled=False, user=user)
 
-    return {"favorites" : favorites, "view_user" : user}
+    return {"favorites" : favorites, "view_user" : user, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
 @user_view('users/subscriptions.html', 'subscriptions', _('subscription'), _('subscriptions'), True, tabbed=False)
 def user_subscriptions(request, user, **kwargs):
@@ -479,6 +480,6 @@ def user_preferences(request, user, **kwargs):
         else:
             form = UserPreferencesForm()
             
-    return {'view_user': user, 'form': form}
+    return {'view_user': user, 'form': form, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
 

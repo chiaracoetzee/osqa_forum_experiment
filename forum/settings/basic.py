@@ -49,4 +49,7 @@ label = _("Contact URL"),
 help_text = _("The URL provided for users to contact you. It can be http: or mailto: or whatever your preferred contact scheme is."),
 required=False))
 
-
+SHOW_REPUTATION_SCORES = Setting('SHOW_REPUTATION_SCORES', True, BASIC_SET, dict(
+label = _("Show reputation scores"),
+help_text = _("Check if you want users to be able to see reputation scores of themselves and others in the interface."),
+required=False))
