@@ -372,12 +372,16 @@ def user_profile(request, user, **kwargs):
     "awards": awards,
     "total_awards" : len(awards),
     "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES,
+    "show_badges" : settings.SHOW_BADGES,
     })
     
 @user_view('users/recent.html', 'recent', _('recent activity'), _('recent user activity'))
 def user_recent(request, user, **kwargs):
+    exclude_list = ("voteup", "votedown", "voteupcomment", "flag", "newpage", "editpage")
+    if not settings.SHOW_BADGES:
+        exclude_list += ("award",)
     activities = user.actions.exclude(
-            action_type__in=("voteup", "votedown", "voteupcomment", "flag", "newpage", "editpage")).order_by(
+            action_type__in=exclude_list).order_by(
             '-action_date')[:USERS_PAGE_SIZE]
 
     return {"view_user" : user, "activities" : activities, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}

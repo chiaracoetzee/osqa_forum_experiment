@@ -121,37 +121,39 @@
                 </tr>
             </table>
         </div>
-        <a name="badges"></a>
-        {% spaceless %}
-        <h2>
-            {% blocktrans count total_awards as counter %}
-            <span class="count">{{counter}}</span> Badge
-            {% plural %}
-            <span class="count">{{counter}}</span> Badges
-            {% endblocktrans %}
-        </h2>
-        {% endspaceless %}
-        <div class="user-stats-table">
-            <table>
-                <tr style="vertical-align: top;">
-                    <td style="line-height:35px; padding-right: 20px;">
-                        {% for award, count in awards %}
-                            {% spaceless %}
-                            <a href="{% url badges %}{{award.id}}/{{award.name|slugify}}" title="{{ award.description }}" class="medal">
-                                <span class="badge{{ award.type }}">&#9679;</span>&nbsp;{{ award.name }}
-                            </a>
-                            {% ifnotequal count 1 %}
-                                <span class="tag-number"> &#215; {{ count|intcomma }}</span>
-                            {% endifnotequal %}<br/>
-                            {% if forloop.counter|divisibleby:"6" %}
-                                </td>
-                                <td width="180" style="line-height:35px">
-                            {% endif %}
-                            {% endspaceless %}
-                        {% endfor %}
-                    </td>
-                </tr>
-            </table>
-        </div>
+	{% if show_badges %}
+	    <a name="badges"></a>
+	    {% spaceless %}
+	    <h2>
+		{% blocktrans count total_awards as counter %}
+		<span class="count">{{counter}}</span> Badge
+		{% plural %}
+		<span class="count">{{counter}}</span> Badges
+		{% endblocktrans %}
+	    </h2>
+	    {% endspaceless %}
+	    <div class="user-stats-table">
+		<table>
+		    <tr style="vertical-align: top;">
+			<td style="line-height:35px; padding-right: 20px;">
+			    {% for award, count in awards %}
+				{% spaceless %}
+				<a href="{% url badges %}{{award.id}}/{{award.name|slugify}}" title="{{ award.description }}" class="medal">
+				    <span class="badge{{ award.type }}">&#9679;</span>&nbsp;{{ award.name }}
+				</a>
+				{% ifnotequal count 1 %}
+				    <span class="tag-number"> &#215; {{ count|intcomma }}</span>
+				{% endifnotequal %}<br/>
+				{% if forloop.counter|divisibleby:"6" %}
+				    </td>
+				    <td width="180" style="line-height:35px">
+				{% endif %}
+				{% endspaceless %}
+			    {% endfor %}
+			</td>
+		    </tr>
+		</table>
+	    </div>
+        {% endif %}
 {% endblock %}
 <!-- end user_stats.html -->

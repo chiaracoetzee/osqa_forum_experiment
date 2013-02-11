@@ -8,6 +8,7 @@ from django.views.static import serve
 from django.views.decorators.cache import cache_page
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
 
 from forum import settings
 from forum.views.decorators import login_required
@@ -86,8 +87,11 @@ def logout(request):
     'next' : get_next_url(request),
     }, context_instance=RequestContext(request))
 
-@decorators.render('badges.html', 'badges', _('badges'), weight=300)
+@decorators.render('badges.html', 'badges', _('badges'), weight=300, tabbed=settings.SHOW_BADGES)
 def badges(request):
+    if not settings.SHOW_BADGES:
+        return HttpResponseRedirect(reverse('index'))
+
     badges = sorted([Badge.objects.get(id=id) for id in BadgesMeta.by_id.keys()], lambda b1, b2: cmp(b1.name, b2.name))
 
     if request.user.is_authenticated():
@@ -101,6 +105,9 @@ def badges(request):
     }
 
 def badge(request, id, slug):
+    if not settings.SHOW_BADGES:
+        return HttpResponseRedirect(reverse('index'))
+
     badge = Badge.objects.get(id=id)
     awards = list(Award.objects.filter(badge=badge).order_by('user', 'awarded_at'))
     award_count = len(awards)

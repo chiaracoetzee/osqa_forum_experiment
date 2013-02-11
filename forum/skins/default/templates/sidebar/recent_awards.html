@@ -1,5 +1,6 @@
 {% load i18n %}
 
+{% if show_badges %}
 <div class="boxC">
     <h3>{% trans "Recent awards" %}</h3>
     <div class="body">
@@ -15,3 +16,4 @@
         <div class="more"><a href="{% url badges %}">{% trans "all awards" %} </a> </div>
      </div>
 </div>
+{% endif %}

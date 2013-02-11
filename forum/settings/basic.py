@@ -51,5 +51,10 @@ required=False))
 
 SHOW_REPUTATION_SCORES = Setting('SHOW_REPUTATION_SCORES', True, BASIC_SET, dict(
 label = _("Show reputation scores"),
-help_text = _("Check if you want users to be able to see reputation scores of themselves and others in the interface."),
+help_text = _("Check if you want users to be able to see reputation scores of themselves and others."),
+required=False))
+
+SHOW_BADGES = Setting('SHOW_BADGES', True, BASIC_SET, dict(
+label = _("Show badges"),
+help_text = _("Check if you want users to be able to see badges that they and other users have."),
 required=False))

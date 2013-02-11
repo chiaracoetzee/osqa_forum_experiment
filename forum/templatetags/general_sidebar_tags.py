@@ -12,7 +12,10 @@ def markdown_help():
 
 @register.inclusion_tag('sidebar/recent_awards.html')
 def recent_awards():
-    return {'awards': Award.objects.order_by('-awarded_at')[:settings.RECENT_AWARD_SIZE]}
+    return {
+        'awards': Award.objects.order_by('-awarded_at')[:settings.RECENT_AWARD_SIZE],
+        'show_badges': settings.SHOW_BADGES
+        }
 
 @register.inclusion_tag('sidebar/user_blocks.html')
 def sidebar_upper():

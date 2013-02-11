@@ -163,11 +163,12 @@ class AwardAction(ActionProxy):
 
         self.user.save()
 
-        self.user.message_set.create(message=_(
-                """Congratulations, you have received a badge '%(badge_name)s'. <a href="%(badge_url)s">Find out who has it, too</a>."""
-        ) % dict(
-            badge_name=award.badge.name,
-            badge_url=award.badge.get_absolute_url()))
+        if settings.SHOW_BADGES:
+            self.user.message_set.create(message=_(
+                    """Congratulations, you have received a badge '%(badge_name)s'. <a href="%(badge_url)s">Find out who has it, too</a>."""
+            ) % dict(
+                badge_name=award.badge.name,
+                badge_url=award.badge.get_absolute_url()))
 
     def cancel_action(self):
         award = self.award
