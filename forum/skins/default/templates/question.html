@@ -104,7 +104,9 @@
                 <tr>
                     <td style="width:30px;vertical-align:top">
                         <div class="vote-buttons">
-                            {% vote_buttons question request.user %}
+                            {% if settings.SHOW_VOTES %}
+                                {% vote_buttons question request.user %}
+                            {% endif %}
                             {% favorite_mark question request.user %}                            
                         </div>
                     </td>
@@ -159,7 +161,9 @@
                             <tr>
                                 <td style="width:30px;vertical-align:top">
                                     <div class="vote-buttons">
-                                        {% vote_buttons answer request.user %}
+                                        {% if settings.SHOW_VOTES %}
+                                            {% vote_buttons answer request.user %}
+                                        {% endif %}
                                         {% accept_button answer request.user %}
                                     </div>
                                 </td>

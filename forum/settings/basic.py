@@ -58,3 +58,8 @@ SHOW_BADGES = Setting('SHOW_BADGES', True, BASIC_SET, dict(
 label = _("Show badges"),
 help_text = _("Check if you want users to be able to see badges that they and other users have."),
 required=False))
+
+SHOW_VOTES = Setting('SHOW_VOTES', True, BASIC_SET, dict(
+label = _("Show votes"),
+help_text = _("Check if you want users to be able to see the number of votes on questions and responses, as well as vote actions in their log."),
+required=False))

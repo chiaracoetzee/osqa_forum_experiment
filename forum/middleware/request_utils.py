@@ -6,13 +6,14 @@ from forum.http_responses import HttpResponseServiceUnavailable
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from forum.models import User
+import logging
 
 class RequestUtils(object):
     def process_request(self, request):
         # If not consented, only allow consent, logout
         if not request.user.is_authenticated() and not request.path.startswith('/account/'):
             return HttpResponseRedirect(reverse('auth_provider_signin', args=['edx']))
-        if request.user.is_authenticated() and not 'test.' in APP_URL and not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])):
+        if request.user.is_authenticated() and not 'test.' in APP_URL and (not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])) or request.path == '/account/signin/'):
             # Redirect to server for correct experimental group based on SHA512 hash of username, if necessary
             import hashlib
             hasher = hashlib.sha256()

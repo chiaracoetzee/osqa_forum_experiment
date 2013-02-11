@@ -38,7 +38,8 @@ def get_subdomain():
 
 def signin_page(request):
     subdomain = get_subdomain()
-    if any(map(lambda x: subdomain.endswith(x), ['-a', '-b'])):
+    on_hub_server = not any(map(lambda x: subdomain.endswith(x), ['-a', '-b']))
+    if not on_hub_server and not request.session.has_key('auth_error'):
         # Go log in to main site instead, which will redirect back here
         return HttpResponseRedirect('http://' + subdomain.replace('-a','').replace('-b', '') + '.moocforums.org' + reverse('auth_signin'))
 
@@ -54,9 +55,12 @@ def signin_page(request):
     sort = lambda c1, c2: c1.weight - c2.weight
     can_show = lambda c: not request.user.is_authenticated() or c.show_to_logged_in_user
 
-    bigicon_providers = sorted([
-    context for context in all_providers if context.mode == 'BIGICON' and can_show(context)
-    ], sort)
+    if on_hub_server:
+        bigicon_providers = sorted([
+        context for context in all_providers if context.mode == 'BIGICON' and can_show(context)
+        ], sort)
+    else:
+        bigicon_providers = []
 
     smallicon_providers = sorted([
     context for context in all_providers if context.mode == 'SMALLICON' and can_show(context)

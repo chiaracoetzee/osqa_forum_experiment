@@ -20,6 +20,7 @@ class QuestionItemNode(template.Node):
             'question_summary': self.options.get('question_summary', 'no' ) == 'yes',
             'favorite_count': self.options.get('favorite_count', 'no') == 'yes',
             'signature_type': self.options.get('signature_type', 'lite'),
+            'show_votes': settings.SHOW_VOTES,
         }))
 
 class SubscriptionItemNode(template.Node):
