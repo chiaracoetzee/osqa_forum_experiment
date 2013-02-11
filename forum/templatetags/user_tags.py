@@ -17,7 +17,8 @@ class UserSignatureNode(template.Node):
         return self.template.render(template.Context({
         'user': self.user.resolve(context),
         'format': self.format.resolve(context),
-        'show_reputation_scores': settings.SHOW_REPUTATION_SCORES
+        'show_reputation_scores': settings.SHOW_REPUTATION_SCORES,
+        'show_badges': settings.SHOW_BADGES,
         }))
 
 @register.tag

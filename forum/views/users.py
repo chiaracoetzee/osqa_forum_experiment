@@ -47,11 +47,16 @@ class SubscriptionListPaginatorContext(pagination.PaginatorContext):
 
 class UserAnswersPaginatorContext(pagination.PaginatorContext):
     def __init__(self):
-        super (UserAnswersPaginatorContext, self).__init__('USER_ANSWER_LIST', sort_methods=(
+        sort_methods = (
             (_('oldest'), pagination.SimpleSort(_('oldest answers'), 'added_at', _("oldest answers will be shown first"))),
-            (_('newest'), pagination.SimpleSort(_('newest answers'), '-added_at', _("newest answers will be shown first"))),
-            (_('votes'), pagination.SimpleSort(_('popular answers'), '-score', _("most voted answers will be shown first"))),
-        ), default_sort=_('votes'), pagesizes=(5, 10, 20), default_pagesize=20, prefix=_('answers'))
+            (_('newest'), pagination.SimpleSort(_('newest answers'), '-added_at', _("newest answers will be shown first")))
+        )
+        default_sort = 'newest'
+        if settings.SHOW_VOTES:
+            sort_methods += ((_('votes'), pagination.SimpleSort(_('popular answers'), '-score', _("most voted answers will be shown first"))),)
+            default_sort = 'votes'
+        super (UserAnswersPaginatorContext, self).__init__('USER_ANSWER_LIST', sort_methods=sort_methods,
+          default_sort=_(default_sort), pagesizes=(5, 10, 20), default_pagesize=20, prefix=_('answers'))
 
 USERS_PAGE_SIZE = 35# refactor - move to some constants file
 
@@ -373,6 +378,7 @@ def user_profile(request, user, **kwargs):
     "total_awards" : len(awards),
     "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES,
     "show_badges" : settings.SHOW_BADGES,
+    "show_votes" : settings.SHOW_VOTES,
     })
     
 @user_view('users/recent.html', 'recent', _('recent activity'), _('recent user activity'))
@@ -398,12 +404,17 @@ def user_reputation(request, user, **kwargs):
     for i in range(len(values))
     ])
 
-    rep = user.reputes.filter(action__canceled=False).order_by('-date')[0:20]
+    exclude_list = ()
+    if not settings.SHOW_VOTES:
+        exclude_list += ("voteup", "votedown", "voteupcomment")
+    rep = user.reputes.filter(action__canceled=False).exclude(action__action_type__in=exclude_list).order_by('-date')[0:20]
 
     return {"view_user": user, "reputation": rep, "graph_data": graph_data, "show_reputation_scores" : settings.SHOW_REPUTATION_SCORES}
 
-@user_view('users/votes.html', 'votes', _('votes'), _('user vote record'), True)
+@user_view('users/votes.html', 'votes', _('votes'), _('user vote record'), True, tabbed=settings.SHOW_VOTES)
 def user_votes(request, user, **kwargs):
+    if not settings.SHOW_VOTES:
+        return HttpResponseRedirect(user.get_profile_url())
     votes = user.votes.exclude(node__state_string__contains="(deleted").filter(
             node__node_type__in=("question", "answer")).order_by('-voted_at')[:USERS_PAGE_SIZE]
 

@@ -66,32 +66,34 @@
     </div>
 
 
-        <a name="votes"></a>
-        {% spaceless %}
-            <h2>
-                {% blocktrans count total_votes as cnt %}
-                    <span class="count">{{cnt}}</span> Vote
-                {% plural %}
-                    <span class="count">{{cnt}}</span> Votes
-                {% endblocktrans %}
-            </h2>
-        {% endspaceless %}
-        <div class="user-stats-table">
-            <table>
-                <tr>
-                    <td width="60">
-                        <img style="cursor: default;" src="{% media  "/media/images/vote-arrow-up-on.png" %}" alt="{% trans "thumb up" %}" />
-                            <span title="{% trans "user has voted up this many times" %}" class="vote-count">{{up_votes}}</span>
+	{% if show_votes %}
+	    <a name="votes"></a>
+	    {% spaceless %}
+		<h2>
+		    {% blocktrans count total_votes as cnt %}
+			<span class="count">{{cnt}}</span> Vote
+		    {% plural %}
+			<span class="count">{{cnt}}</span> Votes
+		    {% endblocktrans %}
+		</h2>
+	    {% endspaceless %}
+	    <div class="user-stats-table">
+		<table>
+		    <tr>
+			<td width="60">
+			    <img style="cursor: default;" src="{% media  "/media/images/vote-arrow-up-on.png" %}" alt="{% trans "thumb up" %}" />
+				<span title="{% trans "user has voted up this many times" %}" class="vote-count">{{up_votes}}</span>
 
-                    </td>
-                    <td width="60">
-                        <img style="cursor: default;" src="{% media  "/media/images/vote-arrow-down-on.png" %}" alt="{% trans "thumb down" %}" />
-                            <span title="{% trans "user voted down this many times" %}" class="vote-count">{{down_votes}}</span>
+			</td>
+			<td width="60">
+			    <img style="cursor: default;" src="{% media  "/media/images/vote-arrow-down-on.png" %}" alt="{% trans "thumb down" %}" />
+				<span title="{% trans "user voted down this many times" %}" class="vote-count">{{down_votes}}</span>
 
-                    </td>
-                </tr>
-            </table>
-        </div>
+			</td>
+		    </tr>
+		</table>
+	    </div>
+	{% endif %}
         <a name="tags"></a>
         {% spaceless %}
             <h2>
