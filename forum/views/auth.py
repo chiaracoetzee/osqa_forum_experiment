@@ -29,12 +29,18 @@ from forum.authentication import AUTH_PROVIDERS
 from forum.models import User, AuthKeyUserAssociation, ValidationHash
 from forum.actions import UserJoinsAction, UserLoginAction
 from forum import settings
+from forum.middleware import request_utils
 
 from vars import ON_SIGNIN_SESSION_ATTR, PENDING_SUBMISSION_SESSION_ATTR
 
 def get_subdomain():
     root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     return os.path.basename(root_dir)
+
+def transfer(request, group):
+    if not request.user.is_superuser:
+        return HttpResponseRedirect(reverse('index'))
+    return request_utils.transfer(request.user, group)
 
 def signin_page(request):
     subdomain = get_subdomain()

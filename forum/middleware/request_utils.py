@@ -8,6 +8,27 @@ from django.http import HttpResponseRedirect
 from forum.models import User
 import logging
 
+def transfer(user, group):
+    # Generate a nonce and insert it into database of the new server,
+    # then pass it in the URL to avoid double log-in
+    import random, string
+    # TODO: Use cryptographically-secure RNG
+    nonce = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(64))
+    try:
+        user = User.objects.using(group).get(username=user.username)
+        user.redirect_nonce = nonce
+        user.save(using=group)
+    except User.DoesNotExist:
+        # Clone current user
+        user = user
+        user.redirect_nonce = nonce
+        save_id = user.id
+        user.id = None
+        user.save(using=group, force_insert=True)
+        user.id = save_id
+
+    return HttpResponseRedirect('http://cs1692x-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
+
 class RequestUtils(object):
     def process_request(self, request):
         # If not consented, only allow consent, logout
@@ -19,28 +40,11 @@ class RequestUtils(object):
             hasher = hashlib.sha256()
             hasher.update(request.user.username)
             group = 'a' if ord(hasher.digest()[-1]) % 2 == 0 else 'b'
-            if '-' + group + '.' not in APP_URL:
-                # Generate a nonce and insert it into database of the new server,
-                # then pass it in the URL to avoid double log-in
-                import random, string
-                # TODO: Use cryptographically-secure RNG
-                nonce = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(64))
-                try:
-                    user = User.objects.using(group).get(username=request.user.username)
-                    user.redirect_nonce = nonce
-                    user.save(using=group)
-                except User.DoesNotExist:
-                    # Clone current user
-                    user = request.user
-                    user.redirect_nonce = nonce
-                    save_id = user.id
-                    user.id = None
-                    user.save(using=group, force_insert=True)
-                    user.id = save_id
-                    
-                return HttpResponseRedirect('http://cs1692x-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
+            if '-' + group + '.' not in APP_URL and not request.user.is_superuser:
+                return transfer(request.user, group)
+
         # On correct server now, force consent form on first visit, but still allow logout
-        if request.user.is_authenticated() and not request.user.completed_consent and not any(map(lambda x: request.path.startswith(x), ['/consent/', '/logout/', '/account/'])):
+        if request.user.is_authenticated() and not request.user.completed_consent and not any(map(lambda x: request.path.startswith(x), ['/consent/', '/logout/', '/account/'])) and not request.user.is_superuser:
             return HttpResponseRedirect(reverse('consent'))
 
         if MAINTAINANCE_MODE.value is not None and isinstance(MAINTAINANCE_MODE.value.get('allow_ips', None), list):
