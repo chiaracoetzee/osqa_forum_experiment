@@ -1,4 +1,5 @@
 import forum
+import os
 
 from forum.settings import MAINTAINANCE_MODE, APP_URL, APP_LOGO, APP_TITLE
 
@@ -7,6 +8,11 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from forum.models import User
 import logging
+import re
+
+def get_subdomain():
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    return os.path.basename(root_dir)
 
 def transfer(user, group):
     # Generate a nonce and insert it into database of the new server,
@@ -27,14 +33,15 @@ def transfer(user, group):
         user.save(using=group, force_insert=True)
         user.id = save_id
 
-    return HttpResponseRedirect('http://cs1692x-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
+    subdomain = get_subdomain()
+    return HttpResponseRedirect('http://' + subdomain + '-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
 
 class RequestUtils(object):
     def process_request(self, request):
         # If not consented, only allow consent, logout
         if not request.user.is_authenticated() and not request.path.startswith('/account/'):
             return HttpResponseRedirect(reverse('auth_provider_signin', args=['edx']))
-        if request.user.is_authenticated() and not 'test.' in APP_URL and (not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])) or request.path == '/account/signin/'):
+        if request.user.is_authenticated() and not 'test.' in APP_URL and (not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])) or request.path == '/account/signin/' or re.match('/account/.*/signin/$', request.path)):
             # Redirect to server for correct experimental group based on SHA512 hash of username, if necessary
             import hashlib
             hasher = hashlib.sha256()

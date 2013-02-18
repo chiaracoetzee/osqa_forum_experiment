@@ -63,3 +63,8 @@ SHOW_VOTES = Setting('SHOW_VOTES', True, BASIC_SET, dict(
 label = _("Show votes"),
 help_text = _("Check if you want users to be able to see the number of votes on questions and responses, as well as vote actions in their log."),
 required=False))
+
+OLD_FORUM_URL = Setting('OLD_FORUM_URL', '', BASIC_SET, dict(
+label = _("Old forum URL"),
+help_text = _("The URL of the existing forum at the MOOC provider. Linked in the consent form for users who don't wish to participate in the use of this forum."),
+required=False))

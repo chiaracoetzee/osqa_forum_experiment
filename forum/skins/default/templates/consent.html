@@ -19,7 +19,7 @@
 {% if already_consented %}
 <p><b>You have already consented to participate in the evaluation.</b> You can review the consent
 form below, or cease further participation by 
-<a href="https://www.edx.org/courses/BerkeleyX/CS169.2x/2013_Spring/discussion/forum">switching to the standard edX forum</a>.</p>
+<a href="{{ old_forum_url }}">switching to the standard edX forum</a>.</p>
 {% endif %}
 
 <p>Dear {{ username }}:</p>
@@ -51,8 +51,7 @@ click "Go to standard edX forum."</p>
 
 <p><a href="accept/">Accept</a></p>
 
-<!-- TODO: Put this URL in a setting -->
-<p><a href="https://www.edx.org/courses/BerkeleyX/CS169.2x/2013_Spring/discussion/forum">Go to standard edX forum</a></p>
+<p><a href="{{ old_forum_url }}">Go to standard edX forum</a></p>
 </div>
 {% endblock %}
 

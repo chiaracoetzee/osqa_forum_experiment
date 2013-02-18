@@ -152,6 +152,8 @@ def process_provider_signin(request, provider):
                             "Sorry, these login credentials belong to anoother user. Plese terminate your current session and try again."
                             )
                 else:
+                    if nonce != '':
+                        return HttpResponseRedirect(reverse('index'))
                     request.session['auth_error'] = _("You are already logged in with that user.")
             else:
                 try:
