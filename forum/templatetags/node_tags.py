@@ -247,6 +247,7 @@ def _comments(post, user):
         'more_comments_count' : int(total - showing),
         'show_latest_comments_first' : settings.SHOW_LATEST_COMMENTS_FIRST,
         'user': user,
+        'show_votes': settings.SHOW_VOTES,
     }
 
 @register.inclusion_tag('node/comments.html')

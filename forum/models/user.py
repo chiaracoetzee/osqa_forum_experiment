@@ -335,9 +335,8 @@ class User(BaseModel, DjangoUser):
         return self == post.author or self.reputation >= int(settings.REP_TO_COMMENT
                 ) or (post.__class__.__name__ == "Answer" and self == post.question.author)
 
-    @true_if_is_super_or_staff
     def can_like_comment(self, comment):
-        return self != comment.author and (self.reputation >= int(settings.REP_TO_LIKE_COMMENT))
+        return settings.SHOW_VOTES and (self.is_superuser or self.is_staff or (self != comment.author and (self.reputation >= int(settings.REP_TO_LIKE_COMMENT))))
 
     @true_if_is_super_or_staff
     def can_edit_comment(self, comment):
