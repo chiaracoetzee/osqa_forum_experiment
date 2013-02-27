@@ -105,7 +105,7 @@ def ask(request):
             form = AskForm({'title': request.POST['q']}, user=request.user)
             
     if not form:
-        form = AskForm(user=request.user)
+        form = AskForm(user=request.user, initial={'tags': request.GET.get('tags', '')})
 
     return render_to_response('ask.html', {
         'form' : form,
