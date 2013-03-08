@@ -36,12 +36,37 @@ def transfer(user, group):
     subdomain = get_subdomain()
     return HttpResponseRedirect('http://' + subdomain + '-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
 
+def anonymize(uid):
+    from AnonymizerClient import AnonymizerClient
+    PORT_NUM = 5000
+    client = AnonymizerClient(PORT_NUM)
+    return client.anonymize(int(uid))
+
+def monitor_activity(request):
+    if not request.user:
+        # This case should never be hit since we already check for authentication
+	logging.error("For monitoring activity: Trying to track a user who is of object type NoneType")
+	return
+
+    from django.db import connection, transaction
+    cursor = connection.cursor()
+    info_to_monitor = [anonymize(request.user.id), request.path, request.method, str(request.GET.lists()), str(request.POST.lists()), str(request.COOKIES)]
+    sql_query = "INSERT INTO monitored_actions (anon_uid, url_path, http_method, get_params, post_params, cookies) VALUES (%s, %s, %s, %s, %s, %s)" 
+    cursor.execute(sql_query, info_to_monitor)
+    transaction.commit_unless_managed()
+
+
 class RequestUtils(object):
     def process_request(self, request):
-        # If not consented, only allow consent, logout
+	# If not consented, only allow consent, logout
         if not request.user.is_authenticated() and not request.path.startswith('/account/'):
             return HttpResponseRedirect(reverse('auth_provider_signin', args=['edx']))
-        if request.user.is_authenticated() and not 'test.' in APP_URL and (not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])) or request.path == '/account/signin/' or re.match('/account/.*/signin/$', request.path)):
+        
+	# If an authenticated user is present, monitor his activity
+	if request.user.is_authenticated():
+	    monitor_activity(request)
+
+	if request.user.is_authenticated() and not 'test.' in APP_URL and (not any(map(lambda x: request.path.startswith(x), ['/logout/', '/account/'])) or request.path == '/account/signin/' or re.match('/account/.*/signin/$', request.path)):
             # Redirect to server for correct experimental group based on SHA512 hash of username, if necessary
             import hashlib
             hasher = hashlib.sha256()
