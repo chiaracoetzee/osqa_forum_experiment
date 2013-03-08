@@ -4,6 +4,7 @@ import datetime
 import logging
 import urllib
 import os
+import re
 from urlparse import urlparse
 
 from django.shortcuts import render_to_response, get_object_or_404
@@ -40,7 +41,7 @@ def get_subdomain():
 def transfer(request, group):
     if not request.user.is_superuser:
         return HttpResponseRedirect(reverse('index'))
-    return request_utils.transfer(request.user, group)
+    return request_utils.transfer(request.user, group, '')
 
 def signin_page(request):
     subdomain = get_subdomain()
@@ -132,6 +133,7 @@ def process_provider_signin(request, provider):
 
         try:
             nonce = request.REQUEST.get('nonce', '')
+            path = request.REQUEST.get('path', '')
             if nonce != '':
                 # Got sent nonce from redirect, check it
                 assoc_key = User.objects.get(redirect_nonce=nonce)
@@ -153,7 +155,11 @@ def process_provider_signin(request, provider):
                             )
                 else:
                     if nonce != '':
-                        return HttpResponseRedirect(reverse('index'))
+                        logging.error("FOOBAR: %s" % path)
+                        if path == '' or path == '/account/signin/' or re.match('/account/.*/signin/', path): # /account/signin/ to prevent redirect loop
+                            return HttpResponseRedirect(reverse('index'))
+                        else:
+                            return HttpResponseRedirect(path)
                     request.session['auth_error'] = _("You are already logged in with that user.")
             else:
                 try:

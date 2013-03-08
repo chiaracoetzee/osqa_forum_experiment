@@ -1,6 +1,7 @@
 import forum
 import os
 
+from urllib import urlencode
 from forum.settings import MAINTAINANCE_MODE, APP_URL, APP_LOGO, APP_TITLE
 
 from forum.http_responses import HttpResponseServiceUnavailable
@@ -14,7 +15,7 @@ def get_subdomain():
     root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     return os.path.basename(root_dir)
 
-def transfer(user, group):
+def transfer(user, group, path):
     # Generate a nonce and insert it into database of the new server,
     # then pass it in the URL to avoid double log-in
     import random, string
@@ -34,7 +35,7 @@ def transfer(user, group):
         user.id = save_id
 
     subdomain = get_subdomain()
-    return HttpResponseRedirect('http://' + subdomain + '-' + group + '.moocforums.org/account/edx/done/?validate_email=yes&nonce=' + nonce)
+    return HttpResponseRedirect('http://' + subdomain + '-' + group + '.moocforums.org/account/edx/done/?' + urlencode({'validate_email': 'yes', 'nonce': nonce, 'path': path}))
 
 class RequestUtils(object):
     def process_request(self, request):
@@ -48,7 +49,7 @@ class RequestUtils(object):
             hasher.update(request.user.username)
             group = 'a' if ord(hasher.digest()[-1]) % 2 == 0 else 'b'
             if '-' + group + '.' not in APP_URL and not request.user.is_superuser:
-                return transfer(request.user, group)
+                return transfer(request.user, group, request.path + ('?' if urlencode(request.GET) != '' else '') + urlencode(request.GET))
 
         # On correct server now, force consent form on first visit, but still allow logout
         if request.user.is_authenticated() and not request.user.completed_consent and not any(map(lambda x: request.path.startswith(x), ['/consent/', '/logout/', '/account/'])) and not request.user.is_superuser:
