@@ -43,18 +43,32 @@ def anonymize(uid):
     client = AnonymizerClient(PORT_NUM)
     return client.anonymize(int(uid))
 
+def is_user_identifiable(params_iter, user_ids):    
+    for k, v_list in params_iter:
+	for i in user_ids:
+	    if i in k:
+	        return True
+	    for v in v_list:
+	        if i in v:
+		    return True
+    return False
+
 def monitor_activity(request):
     if not request.user:
         # This case should never be hit since we already check for authentication
 	logging.error("For monitoring activity: Trying to track a user who is of object type NoneType")
 	return
 
-    from django.db import connection, transaction
-    cursor = connection.cursor()
-    info_to_monitor = [anonymize(request.user.id), request.path, request.method, str(request.GET.lists()), str(request.POST.lists()), str(request.COOKIES)]
-    sql_query = "INSERT INTO monitored_actions (anon_uid, url_path, http_method, get_params, post_params, cookies) VALUES (%s, %s, %s, %s, %s, %s)" 
-    cursor.execute(sql_query, info_to_monitor)
-    transaction.commit_unless_managed()
+    user_ids = [request.user.username, request.user.first_name, request.user.last_name, request.user.email]
+    user_ids = filter(lambda x: x != '' , user_ids)
+    # A list of information that is identifiable to a person
+    if (not is_user_identifiable(request.GET.iterlists(), user_ids)) and (not is_user_identifiable(request.POST.iterlists(), user_ids)):
+    	from django.db import connection, transaction
+    	cursor = connection.cursor()
+    	info_to_monitor = [anonymize(request.user.id), request.path, request.method, str(request.GET.lists()), str(request.POST.lists()), str(request.COOKIES)]
+    	sql_query = "INSERT INTO monitored_actions (anon_uid, url_path, http_method, get_params, post_params, cookies) VALUES (%s, %s, %s, %s, %s, %s)" 
+    	cursor.execute(sql_query, info_to_monitor)
+    	transaction.commit_unless_managed()
 
 
 class RequestUtils(object):
