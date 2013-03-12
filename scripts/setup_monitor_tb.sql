@@ -14,4 +14,3 @@ CREATE TABLE monitored_actions (
 ALTER TABLE monitored_actions OWNER TO :DJANGO_USER ;
 REVOKE ALL ON monitored_actions FROM :DJANGO_USER ;
 GRANT INSERT ON monitored_actions TO :DJANGO_USER ;
-

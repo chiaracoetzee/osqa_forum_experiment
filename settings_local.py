@@ -36,7 +36,7 @@ DATABASES = {
         'USER': subdomain,
         'PASSWORD': '',
         'HOST': '',
-        'PORT': '',
+        'PORT': '5433',
     }
 }
 
@@ -60,8 +60,7 @@ if not subdomain.endswith('-a') and not subdomain.endswith('-b') and not subdoma
     }
   })
 
-CACHE_BACKEND = 'file://%s' % os.path.join(os.path.dirname(__file__),'cache').replace('\\','/')
-#CACHE_BACKEND = 'dummy://'
+CACHE_BACKEND = 'memcached://localhost:11211/'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # This should be equal to your domain name, plus the web application context.

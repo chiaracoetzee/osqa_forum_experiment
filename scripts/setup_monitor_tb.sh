@@ -17,8 +17,8 @@ psql \
     --single-transaction \
     --set AUTOCOMMIT=off \
     --set ON_ERROR_STOP=on \
-    --set DJANGO_USER=$DJANGO_USER \
-    test
+    --set DJANGO_USER=\"$DJANGO_USER\" \
+    $DB
 
 psql_exit_status=$?
 
