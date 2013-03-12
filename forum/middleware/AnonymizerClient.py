@@ -1,6 +1,7 @@
 import sys, getopt
 import httplib
 import socket
+import logging
 
 # This class performs the client side of anonymization.
 # feel free to copy this into the Django code.
@@ -12,7 +13,7 @@ class AnonymizerClient:
             self.conn = httplib.HTTPConnection('127.0.0.1', self.anonymizer_port)
             self.conn.connect()
         except (httplib.HTTPException, socket.error):
-            print 'Port number ' + str(anonymizer_port) + ' does not have the Anonymizer Service running on it'
+            logging.error("Port number %s does not have the Anonymizer Service running on it.\n REMINDER: If you restarted the server, make sure you run AnonymizerService.py using the Anonymizer user." , str(anonymizer_port) ) 
             sys.exit(2)
     
     def anonymize(self, userid):
