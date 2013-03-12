@@ -17,37 +17,14 @@
 <div id="main-body" class="">
 
 {% if already_consented %}
-<p><b>You have already consented to participate in the evaluation.</b> You can review the consent
+<p><b>You have already consented to participate.</b> You can review the consent
 form below, or cease further participation by 
 <a href="{{ old_forum_url }}">switching to the standard edX forum</a>.</p>
 {% endif %}
 
 <p>Dear {{ username }}:</p>
 
-<p>During this course, course staff at University of California,
-Berkeley will be evaluating a new forum software called OSQA that is
-similar to StackOverflow. This software has several features that
-standard edX forum software does not, including:</p>
-
-<ul>
-<li>A reputation score associated which each user, based primarily on
-the number of upvotes they receive on their questions and
-answers.</li>
-<li>Privileges, in which users acquire the ability to perform new
-technical actions, such as editing other's posts, as they acquire more
-reputation.</li>
-</ul>
-
-<p>There will be two forums, one that has these features and one that
-only has basic forum features, and you will be randomly assigned to
-one.  This is not an experiment, but is being used to evaluate the
-software setup for a future experiment. Content and time of posts will
-be available to the general public, but no other private information
-will be recorded.</p>
-
-<p>If you consent to participate in this evaluation, please click "Accept"
-below. If you prefer to use the old, standard edX forum software, please
-click "Go to standard edX forum."</p>
+{{ content }}
 
 <p><a href="accept/">Accept</a></p>
 

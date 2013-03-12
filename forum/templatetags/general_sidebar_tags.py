@@ -38,5 +38,3 @@ def sidebar_lower():
 @register.inclusion_tag('sidebar/recent_tags.html')
 def recent_tags():
     return {'tags': Tag.active.order_by('-id')[:settings.RECENT_TAGS_SIZE]}
-
-    

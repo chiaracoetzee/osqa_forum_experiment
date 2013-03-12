@@ -4,7 +4,9 @@ from base import Setting, SettingSet
 from forms import ImageFormWidget
 
 from django.utils.translation import ugettext_lazy as _
-from django.forms.widgets import Textarea
+from django.forms.widgets import Textarea, Select
+
+from static import RENDER_CHOICES
 
 BASIC_SET = SettingSet('basic', _('Basic settings'), _("The basic settings for your application"), 1)
 
@@ -67,4 +69,17 @@ required=False))
 OLD_FORUM_URL = Setting('OLD_FORUM_URL', '', BASIC_SET, dict(
 label = _("Old forum URL"),
 help_text = _("The URL of the existing forum at the MOOC provider. Linked in the consent form for users who don't wish to participate in the use of this forum."),
+required=False))
+
+CONSENT_TEXT = Setting('CONSENT_TEXT',
+u"""
+""", BASIC_SET, dict(
+label = "Consent Form Content",
+help_text = " The consent form block. ",
+widget=Textarea(attrs={'rows': '10'})))
+
+CONSENT_RENDER_MODE = Setting('CONSENT_RENDER_MODE', 'markdown', BASIC_SET, dict(
+label = _("Consent form rendering mode"),
+help_text = _("How to render your consent form code."),
+widget=Select(choices=RENDER_CHOICES),
 required=False))

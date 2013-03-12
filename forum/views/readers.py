@@ -26,6 +26,8 @@ from forum.feed import RssQuestionFeed, RssAnswerFeed
 from forum.utils.pagination import generate_uri
 
 import decorators
+from django.utils.safestring import mark_safe
+import markdown
 
 class HottestQuestionsSort(pagination.SortBase):
     def apply(self, questions):
@@ -435,12 +437,21 @@ def revisions(request, id):
     'revisions': rev_ctx,
     }, context_instance=RequestContext(request))
 
+def static_content(content, render_mode):
+    if render_mode == 'markdown':
+        return mark_safe(markdown.markdown(unicode(content), ["settingsparser"]))
+    elif render_mode == "html":
+        return mark_safe(unicode(content))
+    else:
+        return unicode(content)
+
 def consent(request):
     if not request.user.is_authenticated():
         # Must be logged in to view consent form
         return HttpResponseRedirect(reverse('auth_signin'))
     return render_to_response('consent.html', {
     'already_consented': request.user.is_authenticated() and request.user.completed_consent,
+    'content': static_content(settings.CONSENT_TEXT, settings.CONSENT_RENDER_MODE),
     'username': request.user.username,
     'old_forum_url': settings.OLD_FORUM_URL,
     }, context_instance=RequestContext(request))
