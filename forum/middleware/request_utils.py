@@ -73,9 +73,11 @@ def monitor_activity(request):
 
 class RequestUtils(object):
     def process_request(self, request):
+        full_path = request.REQUEST.get('path', request.path + ('?' if urlencode(request.GET) != '' else '') + urlencode(request.GET))
+
 	# If not consented, only allow consent, logout
         if not request.user.is_authenticated() and not request.path.startswith('/account/'):
-            return HttpResponseRedirect(reverse('auth_provider_signin', args=['edx']))
+            return HttpResponseRedirect(reverse('auth_provider_signin', args=['edx']) + '?' + urlencode({'path': full_path}))
         
 	# If an authenticated user is present, monitor his activity
 	if request.user.is_authenticated():
@@ -88,7 +90,7 @@ class RequestUtils(object):
             hasher.update(request.user.username)
             group = 'a' if ord(hasher.digest()[-1]) % 2 == 0 else 'b'
             if '-' + group + '.' not in APP_URL and not request.user.is_superuser:
-                return transfer(request.user, group, request.path + ('?' if urlencode(request.GET) != '' else '') + urlencode(request.GET))
+                return transfer(request.user, group, full_path)
 
         # On correct server now, force consent form on first visit, but still allow logout
         if request.user.is_authenticated() and not request.user.completed_consent and not any(map(lambda x: request.path.startswith(x), ['/consent/', '/logout/', '/account/'])) and not request.user.is_superuser:

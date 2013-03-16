@@ -9,6 +9,7 @@ from django.template import RequestContext
 from django import template
 from django.utils.html import *
 from django.db.models import Q, Count
+from django.db.models.query import EmptyQuerySet
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
@@ -108,11 +109,10 @@ def questions(request):
 def tag(request, tag):
     try:
         tag = Tag.active.get(name=unquote(tag))
+        # Getting the questions QuerySet
+        questions = Question.objects.filter(tags__id=tag.id)
     except Tag.DoesNotExist:
-        raise Http404
-
-    # Getting the questions QuerySet
-    questions = Question.objects.filter(tags__id=tag.id)
+        questions = Question.objects.none()
 
     if request.method == "GET":
         user = request.GET.get('user', None)
@@ -189,7 +189,10 @@ def question_list(request, initial,
     if show_summary is None:
         show_summary = bool(settings.SHOW_SUMMARY_ON_QUESTIONS_LIST)
 
-    questions = initial.filter_state(deleted=False)
+    if isinstance(initial, EmptyQuerySet):
+        questions = initial
+    else:
+        questions = initial.filter_state(deleted=False)
 
     if request.user.is_authenticated() and allowIgnoreTags:
         questions = questions.filter(~Q(tags__id__in = request.user.marked_tags.filter(user_selections__reason = 'bad')))

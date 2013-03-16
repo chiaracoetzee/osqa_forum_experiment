@@ -6,6 +6,7 @@ import urllib
 import os
 import re
 from urlparse import urlparse
+from urllib import urlencode
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -106,15 +107,17 @@ def prepare_provider_signin(request, provider):
         return HttpResponseRedirect('http://' + subdomain.replace('-a','').replace('-b', '') + '.moocforums.org' + reverse('auth_provider_signin', kwargs={'provider': provider}))
 
     force_email_request = request.REQUEST.get('validate_email', 'yes') == 'yes'
+    path = request.REQUEST.get('path', '')
     request.session['force_email_request'] = force_email_request
 
     if provider in AUTH_PROVIDERS:
         provider_class = AUTH_PROVIDERS[provider].consumer
 
         try:
-            request_url = provider_class.prepare_authentication_request(request,
-                                                                        reverse('auth_provider_done',
-                                                                                kwargs={'provider': provider}))
+            return_url = reverse('auth_provider_done', kwargs={'provider': provider})
+            if path != '':
+                return_url += '?' + urlencode({'path': path})
+            request_url = provider_class.prepare_authentication_request(request, return_url)
 
             return HttpResponseRedirect(request_url)
         except NotImplementedError, e:
@@ -155,7 +158,6 @@ def process_provider_signin(request, provider):
                             )
                 else:
                     if nonce != '':
-                        logging.error("FOOBAR: %s" % path)
                         if path == '' or path == '/account/signin/' or re.match('/account/.*/signin/', path): # /account/signin/ to prevent redirect loop
                             return HttpResponseRedirect(reverse('index'))
                         else:
@@ -178,7 +180,7 @@ def process_provider_signin(request, provider):
                             message=_('The new credentials are now associated with your account'))
                     return HttpResponseRedirect(reverse('user_authsettings', args=[request.user.id]))
 
-            return HttpResponseRedirect(reverse('auth_signin'))
+            return HttpResponseRedirect(reverse('auth_signin') + '?' + urlencode({'path': full_path}))
         else:
             if isinstance(assoc_key, User):
                 return login_and_forward(request, assoc_key)
@@ -419,6 +421,8 @@ def remove_external_provider(request, id):
     return HttpResponseRedirect(reverse('user_authsettings', kwargs={'id': association.user.id}))
 
 def login_and_forward(request, user, forward=None, message=None):
+    path = request.REQUEST.get('path', '')
+
     if user.is_suspended():
         return forward_suspended_user(request, user)
 
@@ -433,8 +437,11 @@ def login_and_forward(request, user, forward=None, message=None):
 
     request.user.message_set.create(message=message)
 
-    if not forward:
-        forward = request.session.get(ON_SIGNIN_SESSION_ATTR, reverse('index'))
+    if path == '':
+        if not forward:
+            forward = request.session.get(ON_SIGNIN_SESSION_ATTR, reverse('index'))
+    else:
+        forward = path
 
     pending_data = request.session.get(PENDING_SUBMISSION_SESSION_ATTR, None)
 
