@@ -65,7 +65,12 @@ def monitor_activity(request):
     if (not is_user_identifiable(request.GET.iterlists(), user_ids)) and (not is_user_identifiable(request.POST.iterlists(), user_ids)):
     	from django.db import connection, transaction
     	cursor = connection.cursor()
-    	info_to_monitor = [anonymize(request.user.id), request.path, request.method, str(request.GET.lists()), str(request.POST.lists()), str(request.COOKIES)]
+	url_path = request.path
+	for uid in user_ids:
+	    if uid in url_path:
+		url_path = '/users/own-account'
+		break
+    	info_to_monitor = [anonymize(request.user.id), url_path, request.method, str(request.GET.lists()), str(request.POST.lists()), str(request.COOKIES)]
     	sql_query = "INSERT INTO monitored_actions (anon_uid, url_path, http_method, get_params, post_params, cookies) VALUES (%s, %s, %s, %s, %s, %s)" 
     	cursor.execute(sql_query, info_to_monitor)
     	transaction.commit_unless_managed()
