@@ -68,7 +68,7 @@ def setup(db):
 Returns an array of the number of questions asked by every student
 '''
 def getNumQuestionsAsked(db=database):
-        
+    global student_id_map    
     try: 
         conn = psycopg2.connect(database=db, user='postgres')
         cur = conn.cursor()
@@ -83,7 +83,7 @@ def getNumQuestionsAsked(db=database):
             uid, params = rec
             for key, val in eval(params):
                 if key == 'title':
-                    if uid in mon_questions:
+                    if uid not in mon_questions:
                         mon_questions[uid] = set([val[0]])
                     else:
                         mon_questions[uid].add(val[0])
@@ -95,7 +95,7 @@ def getNumQuestionsAsked(db=database):
         return to_ret
                     
                 
-    except Exception, e:
+    except psycopg2.DatabaseError, e:
         print e.pgerror
         conn.close()
         sys.exit(1)
