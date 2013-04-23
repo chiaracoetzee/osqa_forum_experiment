@@ -61,7 +61,7 @@ function is called.
 '''
 def setup(db):
     if len(student_id_map) == 0:
-        setStudentMap(database)
+        setStudentMap(db)
     
 
 '''
